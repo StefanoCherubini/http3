@@ -31,14 +31,22 @@ public class Main {
                     headers = in.readLine();
                 } while (!headers.isEmpty());
 
-                if(risorse.equals("/index.html")|| risorse.equals("/")){   //se nel URL c'è scritto "/index.html" oppure nulla
-                    File file = new File("htdocs/index.html");                      // apre il file che c'è nella "htdocs"
+
+                if(risorse.equals("/"))
+                {
+                    risorse = "index.html";
+                }
+                
+                File file = new File("htdocs/" + risorse);                      // apre il file che c'è nella "htdocs"
+
+
+                if(file.exists()){   //se il file esiste
                     out.writeBytes("HTTPS/1.1 200 OK\n");
-                    out.writeBytes("Content-Type: text/html \n");
+                    out.writeBytes("Content-Type: "+ getContentType(file)+ " \n");
                     out.writeBytes("Content-Length: " + file.length() + "\n");
                     out.writeBytes("\n");
 
-                    InputStream input  = new FileInputStream(file);
+                    InputStream input  = new FileInputStream(file);                          //gestire il file
                     byte[] buf = new byte[8192];
                     int n ;
                     while((n=input.read(buf)) != -1){
@@ -55,6 +63,31 @@ public class Main {
                     out.writeBytes(mess);
                 }
                 s.close();
-            }
+                
+            }     
+    }
+    private static String getContentType(File f)
+    {
+        String[] s = f.getName().split("\\.");
+        String ext = s[s.length-1];
+        switch(ext){
+            case "html":
+            case"htm":
+                return "text/html";
+            case "png":
+                return "image/png";
+            case "webp":
+                return "image/webp";
+            case "jpg":
+            case "jpeg":
+                return "image/jpeg";
+            case "css":
+                return "text/css";
+            case "js" :
+                return "application/javascript";
+            default : 
+                return "";
+        }
+
     }
 }
