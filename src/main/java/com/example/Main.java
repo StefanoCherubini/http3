@@ -32,16 +32,19 @@ public class Main {
                 } while (!headers.isEmpty());
 
 
-                if(risorse.equals("/"))
+                if(risorse.endsWith("/") )
                 {
-                    risorse = "index.html";
+                    risorse += "index.html";
                 }
-                
                 File file = new File("htdocs/" + risorse);                      // apre il file che c'è nella "htdocs"
-
-
-                if(file.exists()){   //se il file esiste
-                    out.writeBytes("HTTPS/1.1 200 OK\n");
+                
+                if (file.isDirectory()) {
+                    out.writeBytes("HTTP/1.1 301 Moved Permanently\n");
+                    out.writeBytes("Content-Length: 0\n");
+                    out.writeBytes("Location: "+ risorse + "/\n");
+                    out.writeBytes("\n");
+                }else if(file.exists()){   //se il file esiste
+                    out.writeBytes("HTTP/1.1 200 OK\n");
                     out.writeBytes("Content-Type: "+ getContentType(file)+ " \n");
                     out.writeBytes("Content-Length: " + file.length() + "\n");
                     out.writeBytes("\n");
@@ -53,10 +56,9 @@ public class Main {
                         out.write(buf,0,n);
                     }
                     input.close();
-                }
-                else{
+                } else{
                     String mess = "NON TROVATO";                                             //se nel URL c'è scritto qualcosa di diverso 
-                    out.writeBytes("HTTPS/1.1 404 Not Found\n");
+                    out.writeBytes("HTTP/1.1 404 Not Found\n");
                     out.writeBytes("Content-Type: text/html \n");
                     out.writeBytes("Content-Length: " + mess.length() + "\n");
                     out.writeBytes("\n");
@@ -66,6 +68,7 @@ public class Main {
                 
             }     
     }
+
     private static String getContentType(File f)
     {
         String[] s = f.getName().split("\\.");
